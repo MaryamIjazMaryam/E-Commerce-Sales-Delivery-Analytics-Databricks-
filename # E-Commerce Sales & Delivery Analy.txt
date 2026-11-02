@@ -1,0 +1,81 @@
+ # E-Commerce Sales & Delivery Analytics (Databricks)
+
+An end-to-end SQL analytics project built in Databricks. It cleans raw e-commerce data, builds analysis-ready tables, answers business questions with SQL, and shows the results in an interactive dashboard.
+
+## Dataset
+[Olist Brazilian E-Commerce Public Dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) from Kaggle: about 99K orders from 2016 to 2018 across 7 related tables (orders, customers, order items, products, payments, reviews, category translations).
+
+## Tools
+- Databricks (Free Edition), SQL Editor, AI/BI Dashboards
+- SQL: joins, CTEs, window functions (LAG, SUM OVER, RANK), CASE, COALESCE
+
+## Architecture (Medallion pattern)
+
+| Layer | What it holds |
+|---|---|
+| Bronze | Raw CSV files loaded as tables, untouched |
+| Silver | Cleaned data: dates and prices converted to proper types, English category names added, invalid rows removed |
+| Gold | Business tables: `order_facts` (one row per delivered order) and `category_sales` |
+
+The dashboard reads from the Gold tables.
+
+## Project structure
+
+```
+databricks-olist-analytics
+├── sql
+│   ├── 01_setup.sql      (create the 3 schemas)
+│   ├── 02_silver.sql     (clean the raw data)
+│   ├── 03_gold.sql       (build analysis tables)
+│   └── 04_analysis.sql   (business questions)
+├── screenshots
+└── README.md
+```
+
+## Business questions answered
+1. How does monthly revenue change, and what is the month-over-month growth?
+2. What is the running total of revenue?
+3. Which product categories make the most money?
+4. Which states have the most late deliveries?
+5. Do late deliveries get worse review scores?
+6. How many customers order more than once?
+7. Which states make the most money?
+
+## Key findings
+
+| Metric | Result |
+|---|---|
+| Total revenue | 13.22M |
+| Delivered orders | 96,470 |
+| Average delivery time | 12.5 days |
+| Late deliveries | 8.1% of orders (about 7.83K) |
+| Peak revenue month | November 2017 |
+| Top revenue state | SP (Sao Paulo), about 5M |
+| Highest late-delivery rate | AL, 23.9% |
+| Average review, on-time orders | 4.29 stars |
+| Average review, late orders | 2.57 stars |
+| Repeat customers | 3.0% of customers ordered more than once |
+| Top 3 categories by revenue | health_beauty, watches_gifts, bed_bath_table |
+
+**Takeaways**
+- Late deliveries cost about 1.7 stars in review score (4.29 vs 2.57).
+- Late rates vary widely by state, from about 8% overall to 23.9% in AL.
+- Only 3% of customers return for a second order, so customer retention is a big opportunity.
+
+## Dashboard
+![Dashboard](screenshots/dashboard.png)
+
+![Dashboard filtered to SP](screenshots/dashboard_sp_filter.png)
+
+The dashboard has 4 KPI counters (Total Revenue, Total Orders, Average Delivery Days, Late Delivery %), a monthly revenue trend, late delivery rate by state, average review score for on-time vs late orders, top categories by revenue, and State and Date filters.
+
+## Recommendations
+- Improve logistics in the states with the highest late-delivery rates, such as AL, since late orders get much lower reviews.
+- Run win-back campaigns, because very few customers return for a second order.
+
+## How to run it yourself
+1. Create a free Databricks account (Free Edition).
+2. Download the Olist dataset from Kaggle.
+3. Run `sql/01_setup.sql`, then upload each CSV into the `olist_bronze` schema.
+4. Run `02_silver.sql`, `03_gold.sql` and `04_analysis.sql` in order.
+5. Build the dashboard from the Gold tables.
